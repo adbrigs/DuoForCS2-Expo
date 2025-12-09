@@ -17,3 +17,5 @@ const App = (): JSX.Element => {
 };
 
 export default App;
+ 
+#to run app...npm run web

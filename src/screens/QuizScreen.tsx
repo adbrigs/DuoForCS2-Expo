@@ -24,6 +24,7 @@ const QuizScreen = ({route, navigation}: any) => {
   const [showExplanation, setShowExplanation] = useState(false);
   const [score, setScore] = useState(0);
   const [answers, setAnswers] = useState<boolean[]>([]);
+  const [quizCompleted, setQuizCompleted] = useState(false);
 
   if (!lesson) {
     return (
@@ -60,24 +61,40 @@ const QuizScreen = ({route, navigation}: any) => {
   const nextQuestion = () => {
     if (isLastQuestion) {
       completeLesson(lesson.id, lesson.category, lesson.xpReward);
-      Alert.alert(
-        '🎉 Lesson Complete!',
-        `You earned ${score} XP!\nCorrect answers: ${
-          answers.filter(a => a).length
-        }/${lesson.questions.length}`,
-        [
-          {
-            text: 'Continue',
-            onPress: () => navigation.navigate('Home'),
-          },
-        ],
-      );
+      setQuizCompleted(true);
     } else {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setSelectedAnswer(null);
       setShowExplanation(false);
     }
   };
+
+  const handleContinue = () => {
+    navigation.reset({
+      index: 0,
+      routes: [{name: 'Home'}],
+    });
+  };
+
+  if (quizCompleted) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <View style={styles.completionContainer}>
+          <Text style={styles.completionIcon}>🎉</Text>
+          <Text style={styles.completionTitle}>Lesson Complete!</Text>
+          <Text style={styles.completionScore}>You earned {score} XP!</Text>
+          <Text style={styles.completionStats}>
+            Correct answers: {answers.filter(a => a).length}/{lesson.questions.length}
+          </Text>
+          <TouchableOpacity 
+            style={styles.continueButton}
+            onPress={handleContinue}>
+            <Text style={styles.continueButtonText}>Continue</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
+  }
 
   const renderOptions = () => {
     if (currentQuestion.type === QuestionType.TRUE_FALSE) {
@@ -314,6 +331,45 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   nextButtonText: {
+    color: COLORS.background,
+    fontSize: FONT_SIZES.lg,
+    fontWeight: 'bold',
+  },
+  completionContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: SPACING.xl,
+  },
+  completionIcon: {
+    fontSize: 80,
+    marginBottom: SPACING.lg,
+  },
+  completionTitle: {
+    fontSize: FONT_SIZES.xxl,
+    fontWeight: 'bold',
+    color: COLORS.text,
+    marginBottom: SPACING.md,
+  },
+  completionScore: {
+    fontSize: FONT_SIZES.xl,
+    color: COLORS.primary,
+    fontWeight: 'bold',
+    marginBottom: SPACING.sm,
+  },
+  completionStats: {
+    fontSize: FONT_SIZES.lg,
+    color: COLORS.textLight,
+    marginBottom: SPACING.xl,
+  },
+  continueButton: {
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: SPACING.xl * 2,
+    paddingVertical: SPACING.md,
+    borderRadius: 12,
+    marginTop: SPACING.lg,
+  },
+  continueButtonText: {
     color: COLORS.background,
     fontSize: FONT_SIZES.lg,
     fontWeight: 'bold',
